@@ -1,4 +1,4 @@
--- WORKSHOP * 1
+-- WORKSHOP *  WHERE STATEMENT - 1
 -- FIRST
 SELECT *
 FROM employee
@@ -38,3 +38,12 @@ SELECT *
 FROM employee
 WHERE lastname LIKE 'M%'
     AND hiredate BETWEEN '2010-09-01' AND '2010-09-30';
+-- RETURN firstname, lastname, dateofbirth for employees that are female
+-- AND date of birth < 1982
+-- EXERCISE 
+SELECT firstname,
+    lastname,
+    dateofbirth
+FROM employee
+WHERE dateofbirth < '1982-01-01'
+    AND gender = 'F';
