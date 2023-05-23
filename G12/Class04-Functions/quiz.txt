@@ -1,0 +1,173 @@
+Which of the following is not a DDL statement?
+
+- CREATE
+- INSERT - OK
+- ALTER
+- DROP
+
+Which of the following is not a DML statement?
+
+- UPDATE
+- INSERT
+- CREATE - OK
+- DELETE
+
+Which SQL statement is used to update data in a database?
+
+- SAVE
+- MODIFY
+- SAVE AS
+- UPDATE - OK
+
+Which of the following is not numeric data type?
+
+- bigint
+- decimal
+- varchar - OK
+- money
+
+Which of the following is NOT true about the int data type?
+
+- int is an integer
+- bigint is used when the value will exceed int data type’s range 
+- An Integer uses 8 bytes to store data - OK (int can store up to 4 bytes)
+- Int can not store textual values 
+
+Which SQL statement filters the result set with additional conditions?
+
+- ORDER
+- FILTER
+- WHERE - OK
+- REMOVE
+
+Which SQL statement defines how records are ordered in sort operations?
+
+- HIGHEST \ LOWEST
+- TOP \ BOTTOM
+- ASC \ DESC - OK
+- FIRST \ LAST
+
+How to combine two result sets in order to have result containing all data from both tables without duplicates?
+
+- INTERSECT
+- UNION - OK
+- EXCEPT
+- UNION ALL
+
+To find all employees which names start with the letter 'M', what statement would we use?
+
+- SELECT * FROM employees WHERE name = 'M%'
+- SELECT * FROM employees WHERE name LIKE 'M%' - OK
+- SELECT * FROM employees WHERE name = 'M*'
+- SELECT * FROM employees WHERE name LIKE 'M*'
+
+Which type of constraint should be used in order to prevent having two or more same values in specific table column?
+
+- DEFAULT
+- CHECK
+- UNIQUE - OK
+- DISTINCT
+
+In order to make sure all values inserted for a record satisfy a certain condition, which type of constraint would we use?
+
+- NOT NULL
+- DEFAULT
+- DISTINCT
+- CHECK - OK
+
+If we want to link a table to another one (or make a relation between the two), what kind of a constraint would we use?
+
+- FOREIGN KEY - OK
+- PRIMARY KEY
+- UNIQUE
+- DISTINCT
+
+What is the most common type of relation?
+
+- One-to-Many - OK
+- Many-to-Many
+- One-to-One
+
+What join type matches every row of the first table with every row of the second table?
+
+- LEFT JOIN
+- INNER JOIN
+- CROSS JOIN - OK
+- RIGHT JOIN
+
+To combine column values from two tables with a join, what determines if they will be combined?
+
+- Where clause
+- Join predicate - OK
+- Foreign key constraint
+- Check constraint
+
+What is a valid outer join type?
+
+- TOP
+- BOTTOM
+- FULL - OK
+- INNER
+
+In the case of a left or right outer join, does the result set contain the records from an inner join?
+
+- Yes - OK
+- No
+
+Can we have WHERE operator in the same statement with GROUP BY operator?
+
+- Yes - OK
+- No
+
+Which SQL function is used to concatenate multiple string records into single value?
+
+- AGG
+- STRING_AGG - OK
+- MERGE
+- ADD
+
+Which operator is used to filter the result set by the result of aggregate function?
+
+- FILTER
+- CHECK
+- WHERE
+- HAVING - OK
+
+Can we have ORDER BY and HAVING operator in the same statement?
+
+- Yes - OK 
+- No
+
+Can you use aggregate functions without the GROUP BY operator?
+
+- Yes - OK
+- No
+
+Is it possible to use GROUP BY operator on multiple columns, i.e. group by multiple columns?
+
+- Yes - OK
+- No
+
+Which aggregate function should be used if the user wants to get the total number of rows that satisfies the GROUP BY operator?
+
+- COUNT - OK
+- AVG
+- MAX
+- MIN
+
+Can an aggregate function be used in the ORDER BY operator? Example: ORDER BY SUM(totalPrice)?
+
+- Yes - OK
+- No
+
+A view is a named ___________ that provides another way to present data in the database tables.
+
+- Function
+- Operator
+- Query
+- Select statement - OK 
+
+Can you use views to insert data?
+
+- Yes - OK
+- No
