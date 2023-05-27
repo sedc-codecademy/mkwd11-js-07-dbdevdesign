@@ -255,10 +255,31 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- CREATE THE TRIGGER
+CREATE TRIGGER update_album_duration_trigger
+AFTER INSERT OR DELETE OR UPDATE ON songs
+FOR EACH ROW
+EXECUTE FUNCTION update_album_duration();
 
+SELECT * FROM ALBUMS	
 
-	
+INSERT INTO albums (album_name, rating, artist_id)
+values ('The Massacre', 3.4, 2)
 
+INSERT INTO songs (song_name, duration, album_id)
+values ('Disco Inferno', '03:15', 6)
 
+INSERT INTO songs (song_name, duration, album_id)
+values ('Ayo Technology', '04:10', 6)
 
+SELECT * FROM SONGS
 
+DELETE FROM songs
+WHERE song_id = 9
+
+UPDATE songs
+SET duration = '06:45'
+WHERE song_id = 8
+
+-- INDEXES
+
+CREATE INDEX idx_album_name ON albums (album_name);
