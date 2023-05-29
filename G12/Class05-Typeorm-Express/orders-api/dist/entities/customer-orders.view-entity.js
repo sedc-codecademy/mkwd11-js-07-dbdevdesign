@@ -9,35 +9,37 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.OrderDetails = void 0;
+exports.CustomerOrdersView = void 0;
 var typeorm_1 = require("typeorm");
-var product_entity_1 = require("./product.entity");
-var OrderDetails = exports.OrderDetails = /** @class */ (function () {
-    function OrderDetails() {
+var CustomerOrdersView = exports.CustomerOrdersView = /** @class */ (function () {
+    function CustomerOrdersView() {
     }
     __decorate([
-        (0, typeorm_1.PrimaryGeneratedColumn)(),
-        __metadata("design:type", Number)
-    ], OrderDetails.prototype, "id", void 0);
-    __decorate([
-        (0, typeorm_1.Column)(),
-        __metadata("design:type", Number)
-    ], OrderDetails.prototype, "quantity", void 0);
-    __decorate([
-        (0, typeorm_1.Column)(),
-        __metadata("design:type", Number)
-    ], OrderDetails.prototype, "price", void 0);
-    __decorate([
-        (0, typeorm_1.ManyToOne)(function () { return product_entity_1.Product; }),
-        (0, typeorm_1.JoinColumn)({
-            name: "productid",
+        (0, typeorm_1.ViewColumn)({
+            name: "customerid",
         }),
-        __metadata("design:type", product_entity_1.Product)
-    ], OrderDetails.prototype, "product", void 0);
-    OrderDetails = __decorate([
-        (0, typeorm_1.Entity)({
-            name: "orderdetails",
+        __metadata("design:type", Number)
+    ], CustomerOrdersView.prototype, "customerId", void 0);
+    __decorate([
+        (0, typeorm_1.ViewColumn)(),
+        __metadata("design:type", String)
+    ], CustomerOrdersView.prototype, "name", void 0);
+    __decorate([
+        (0, typeorm_1.ViewColumn)({
+            name: "orders_max",
+        }),
+        __metadata("design:type", Number)
+    ], CustomerOrdersView.prototype, "ordersMax", void 0);
+    __decorate([
+        (0, typeorm_1.ViewColumn)({
+            name: "orders_sum",
+        }),
+        __metadata("design:type", Number)
+    ], CustomerOrdersView.prototype, "ordersSum", void 0);
+    CustomerOrdersView = __decorate([
+        (0, typeorm_1.ViewEntity)({
+            name: "vw_customer_orders",
         })
-    ], OrderDetails);
-    return OrderDetails;
+    ], CustomerOrdersView);
+    return CustomerOrdersView;
 }());
