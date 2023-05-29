@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -43,12 +54,15 @@ var employee_entity_1 = require("./entities/employee.entity");
 var product_entity_1 = require("./entities/product.entity");
 var busines_entity_entity_1 = require("./entities/busines-entity.entity");
 var order_details_entity_1 = require("./entities/order-details.entity");
+var order_entity_1 = require("./entities/order.entity");
+var customer_orders_view_entity_1 = require("./entities/customer-orders.view-entity");
+var max_price_view_entity_1 = require("./entities/max-price.view-entity");
 var app = express();
 app.use(express.json());
 app_data_source_1.dataSource
     .initialize()
     .then(function () {
-    console.log("Connected to databse");
+    console.log("Connected to database");
 })
     .catch(function (err) {
     console.log("Something went wrong. ".concat(err));
@@ -70,7 +84,7 @@ app.get("/customers", function (req, res) { return __awaiter(void 0, void 0, voi
                         .getRawMany()];
             case 2:
                 customerData = _a.sent();
-                return [4 /*yield*/, repo.createQueryBuilder()];
+                return [4 /*yield*/, repo.createQueryBuilder().getCount()];
             case 3:
                 customerCount = _a.sent();
                 res.json({
@@ -200,6 +214,7 @@ app.get("/order-details/:id", function (req, res) { return __awaiter(void 0, voi
                         where: { id: Number(id) },
                         relations: {
                             product: true,
+                            order: true,
                         },
                     })];
             case 2:
@@ -207,6 +222,8 @@ app.get("/order-details/:id", function (req, res) { return __awaiter(void 0, voi
                 return [4 /*yield*/, repo
                         .createQueryBuilder("od")
                         .leftJoinAndSelect("od.product", "p")
+                        .leftJoinAndSelect("od.order", "o")
+                        // using the ":" syntax will allow us to map properties form the raw sql query to the object we use to pass arguments
                         .where("od.id = :orderDetailsId", { orderDetailsId: Number(id) })
                         .getOne()];
             case 3:
@@ -221,6 +238,129 @@ app.get("/order-details/:id", function (req, res) { return __awaiter(void 0, voi
                 res.sendStatus(404);
                 return [3 /*break*/, 5];
             case 5: return [2 /*return*/];
+        }
+    });
+}); });
+// Get orders
+app.get("/orders", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var repo, _a, _b, pageNum, _c, perPage, orderData, orderCount, aggregateData, error_6;
+    return __generator(this, function (_d) {
+        switch (_d.label) {
+            case 0:
+                repo = app_data_source_1.dataSource.getRepository(order_entity_1.Order);
+                _a = req.query, _b = _a.pageNum, pageNum = _b === void 0 ? 1 : _b, _c = _a.perPage, perPage = _c === void 0 ? 10 : _c;
+                _d.label = 1;
+            case 1:
+                _d.trys.push([1, 5, , 6]);
+                return [4 /*yield*/, repo.find({
+                        take: Number(perPage),
+                        skip: (Number(pageNum) - 1) * Number(perPage),
+                    })];
+            case 2:
+                orderData = _d.sent();
+                return [4 /*yield*/, repo.createQueryBuilder().getCount()];
+            case 3:
+                orderCount = _d.sent();
+                return [4 /*yield*/, repo
+                        .createQueryBuilder("o")
+                        .select("AVG(o.totalprice)", "totalPriceAvg")
+                        .addSelect("MAX(o.totalprice)", "totalPriceMax")
+                        // .addSelect("COUNT(*)", "orderCount")
+                        .getRawOne()];
+            case 4:
+                aggregateData = _d.sent();
+                res.json(__assign({ orders: orderData, totalCount: orderCount }, aggregateData));
+                return [3 /*break*/, 6];
+            case 5:
+                error_6 = _d.sent();
+                console.log(error_6);
+                res.sendStatus(500);
+                return [3 /*break*/, 6];
+            case 6: return [2 /*return*/];
+        }
+    });
+}); });
+// Get full order data by id
+app.get("/orders/:id", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, repo, orderData, queryOrderData, error_7;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                id = Number(req.params.id);
+                repo = app_data_source_1.dataSource.getRepository(order_entity_1.Order);
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 4, , 5]);
+                return [4 /*yield*/, repo.findOne({
+                        where: { id: id },
+                        relations: {
+                            employee: true,
+                            customer: true,
+                            businessEntity: true,
+                            orderDetails: true,
+                        },
+                    })];
+            case 2:
+                orderData = _a.sent();
+                return [4 /*yield*/, repo
+                        .createQueryBuilder("o")
+                        .leftJoinAndSelect("o.businessEntity", "be")
+                        .leftJoinAndSelect("o.customer", "c")
+                        .leftJoinAndSelect("o.employee", "e")
+                        .leftJoinAndSelect("o.orderDetails", "od")
+                        .leftJoinAndSelect("od.product", "p")
+                        .where("o.id = :orderId", { orderId: id })
+                        .getOne()];
+            case 3:
+                queryOrderData = _a.sent();
+                if (!orderData)
+                    throw new Error();
+                res.json(queryOrderData);
+                return [3 /*break*/, 5];
+            case 4:
+                error_7 = _a.sent();
+                console.log(error_7);
+                res.sendStatus(404);
+                return [3 /*break*/, 5];
+            case 5: return [2 /*return*/];
+        }
+    });
+}); });
+app.get("/businessentities/max-price", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var minPrice, repo, maxPriceData;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                minPrice = 4;
+                repo = app_data_source_1.dataSource.getRepository(max_price_view_entity_1.MaxPriceView);
+                return [4 /*yield*/, repo.find({})];
+            case 1:
+                maxPriceData = _a.sent();
+                res.json(maxPriceData);
+                return [2 /*return*/];
+        }
+    });
+}); });
+app.get("/customer-orders", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var repo, viewData, error_8;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                repo = app_data_source_1.dataSource.getRepository(customer_orders_view_entity_1.CustomerOrdersView);
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                return [4 /*yield*/, repo.find({})];
+            case 2:
+                viewData = _a.sent();
+                res.json(viewData);
+                return [3 /*break*/, 4];
+            case 3:
+                error_8 = _a.sent();
+                console.log(error_8);
+                res.sendStatus(500);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
         }
     });
 }); });

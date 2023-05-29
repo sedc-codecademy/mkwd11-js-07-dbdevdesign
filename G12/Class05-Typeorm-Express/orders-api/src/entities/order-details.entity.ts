@@ -4,8 +4,10 @@ import {
   Column,
   JoinColumn,
   ManyToOne,
+  OneToOne,
 } from "typeorm";
 import { Product } from "./product.entity";
+import { Order } from "./order.entity";
 
 @Entity({
   name: "orderdetails",
@@ -25,4 +27,10 @@ export class OrderDetails {
     name: "productid",
   })
   product: Product;
+
+  @OneToOne(() => Order, order => order.orderDetails)
+  @JoinColumn({
+    name: "orderid",
+  })
+  order: Order;
 }
