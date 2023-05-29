@@ -119,35 +119,39 @@ app.get("/employees", function (req, res) { return __awaiter(void 0, void 0, voi
 }); });
 // Get all products
 app.get("/products", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var repo, _a, _b, pageNum, _c, perPage, productData, productCount, error_3;
-    return __generator(this, function (_d) {
-        switch (_d.label) {
+    var repo, _a, _b, pageNum, _c, perPage, productData, productCount, _d, _e, error_3;
+    return __generator(this, function (_f) {
+        switch (_f.label) {
             case 0:
                 repo = app_data_source_1.dataSource.getRepository(product_entity_1.Product);
                 _a = req.query, _b = _a.pageNum, pageNum = _b === void 0 ? 1 : _b, _c = _a.perPage, perPage = _c === void 0 ? 10 : _c;
-                _d.label = 1;
+                _f.label = 1;
             case 1:
-                _d.trys.push([1, 4, , 5]);
+                _f.trys.push([1, 5, , 6]);
                 return [4 /*yield*/, repo.find({
                         take: Number(perPage),
                         skip: (Number(pageNum) - 1) * Number(perPage),
                     })];
             case 2:
-                productData = _d.sent();
+                productData = _f.sent();
                 return [4 /*yield*/, repo.createQueryBuilder().getCount()];
             case 3:
-                productCount = _d.sent();
+                productCount = _f.sent();
+                _e = (_d = console).log;
+                return [4 /*yield*/, app_data_source_1.dataSource.query("SELECT format_product_name(1)")];
+            case 4:
+                _e.apply(_d, [_f.sent()]);
                 res.json({
                     products: productData,
                     totalCount: productCount,
                 });
-                return [3 /*break*/, 5];
-            case 4:
-                error_3 = _d.sent();
+                return [3 /*break*/, 6];
+            case 5:
+                error_3 = _f.sent();
                 console.log(error_3);
                 res.sendStatus(500);
-                return [3 /*break*/, 5];
-            case 5: return [2 /*return*/];
+                return [3 /*break*/, 6];
+            case 6: return [2 /*return*/];
         }
     });
 }); });

@@ -79,6 +79,8 @@ app.get("/products", async (req: Request, res: Response) => {
 
     const productCount = await repo.createQueryBuilder().getCount();
 
+    console.log(await dataSource.query("SELECT format_product_name(1)"));
+
     res.json({
       products: productData,
       totalCount: productCount,
