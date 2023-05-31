@@ -28,8 +28,8 @@ interface IdRouteParams {
 }
 
 @Controller('tasks')
-@ApiBearerAuth() // only used for swagger
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @ApiBearerAuth() // only used for swagger
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class TasksController {
   constructor(private readonly taskService: TasksService) {}
 
@@ -42,7 +42,7 @@ export class TasksController {
 
   @Get('names')
   @HttpCode(202)
-  getTaskNames(@Res() response: Response) {
+  getTaskNames() {
     const tasksNames = this.taskService.getTaskNames();
 
     return tasksNames;

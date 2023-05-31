@@ -11,7 +11,7 @@ import { CommentsService } from './comments.service';
 import { CommentDto } from './dto/comment.dto';
 import { JwtAuthGuard } from 'src/common/auth/jwt-auth/jwt-auth.guard';
 
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('comments')
 export class CommentsController {
   constructor(private readonly commentService: CommentsService) {}

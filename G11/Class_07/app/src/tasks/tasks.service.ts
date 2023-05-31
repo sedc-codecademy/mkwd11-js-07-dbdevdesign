@@ -18,51 +18,85 @@ export class TasksService {
     private readonly tasksRepository: Repository<TaskEntity>,
   ) {}
 
-  tasks: Task[] = [
-    {
-      id: '1',
-      name: 'Task 1',
-      description: 'Description 1',
-      dueDate: new Date('2023-04-30').getTime(), // will return timestamp from given date
-      priority: Priority.HIGH,
-      status: Status.IN_PROGRESS,
-    },
-    {
-      id: '2',
-      name: 'Task 2',
-      description: 'Description 2',
-      dueDate: new Date('2023-04-18').getTime(),
-      priority: Priority.HIGH,
-      status: Status.COMPLETED,
-    },
-    {
-      id: '3',
-      name: 'Task 3',
-      description: 'Description 3',
-      dueDate: new Date('2023-05-30').getTime(),
-      priority: Priority.LOW,
-      status: Status.PENDING,
-    },
-  ];
+  async getTasks() {
+    // WAY ONE
+    // const query = `
+    // SELECT *
+    // FROM tasks
+    // LEFT JOIN comments
+    // ON comments.taskId = tasks.id
+    // `;
+    // const tasks = await this.tasksRepository.query(query);
 
-  getTasks() {
-    return this.tasksRepository.find({
-      relations: ['comments'],
-    });
+    // return tasks;
+
+    // WAY TWO
+    const tasks = await this.tasksRepository
+      .createQueryBuilder('task')
+      .leftJoinAndSelect('task.comments', 'comment')
+      .getMany();
+
+    return tasks;
+
+    // INITIAL WAY
+    // return this.tasksRepository.find({
+    //   relations: ['comments'],
+    // });
   }
 
-  getTaskNames() {
-    const taskNames = this.tasks.map((task) => task.name);
+  async getTaskNames() {
+    // WAY ONE
+    const query = `
+    SELECT name
+    FROM tasks
+    `;
+
+    const taskNames = await this.tasksRepository.query(
+      // `SELECT name FROM tasks`,
+
+      // same as above
+      query,
+    );
 
     return taskNames;
   }
 
   async findOne(id: string) {
     // DATABASE OPERATIONS // id === id
-    const task = await this.tasksRepository.findOne({
-      where: { id: id },
-      relations: ['comments'],
-    });
+    // INITIAL WAY
+    // const task = await this.tasksRepository.findOne({
+    //   where: { id: id },
+    //   relations: ['comments'],
+    // });
+
+    // QUERY - WAY ONE
+    // const query = `
+    // SELECT *
+    // FROM tasks
+    // LEFT JOIN comments
+    // ON comments.taskId = tasks.id
+    // WHERE tasks.id = '${id}'
+    // `;
+
+    // const task = await this.tasksRepository.query(query);
+
+    // QUERY - WAY TWO
+    // const query = `
+    // SELECT *
+    // FROM tasks
+    // LEFT JOIN comments
+    // ON comments.taskId = tasks.id
+    // WHERE tasks.id = $1
+    // `;
+
+    // const task = await this.tasksRepository.query(query, [id]);
+
+    // THIRD WAY
+    const task = await this.tasksRepository
+      .createQueryBuilder('task')
+      .leftJoinAndSelect('task.comments', 'comment')
+      .where('task.id = :id', { id })
+      .getOne();
 
     if (!task) {
       throw new NotFoundException(`Task with id: ${id} was not found.`);
@@ -71,43 +105,87 @@ export class TasksService {
     return task;
   }
 
-  getTasksByQuery(queryValue: string) {
-    if (queryValue === 'true') {
-      const completedTasks = this.tasks.filter(
-        (task) => task.status === Status.COMPLETED,
-      );
+  async getTasksByQuery(queryValue: string) {
+    // WAY ONE
+    // if (queryValue === 'true') {
+    //   const query = `
+    //   SELECT *
+    //   FROM tasks
+    //   WHERE status = 'COMPLETED';
+    //   `;
 
-      return completedTasks;
-    } else if (queryValue === 'false') {
-      const notCompleted = this.tasks.filter(
-        (task) => task.status !== Status.COMPLETED,
-      );
+    //   const completedTasks = await this.tasksRepository.query(query);
+    //   return completedTasks;
+    // } else if (queryValue === 'false') {
+    //   const query = `
+    //   SELECT *
+    //   FROM tasks
+    //   WHERE status <> 'COMPLETED';
+    //   `;
 
-      return notCompleted;
-    }
+    //   const inCompletedTasks = await this.tasksRepository.query(query);
 
-    throw new HttpException(
-      'Wrong input, query is not supported',
-      HttpStatus.UNPROCESSABLE_ENTITY,
-    );
+    //   return inCompletedTasks;
+    // }
+
+    // WAY TWO
+
+    const query = `
+    SELECT * FROM
+    get_tasks_by_status($1);
+    `;
+
+    const results = await this.tasksRepository.query(query, [queryValue]);
+
+    return results;
   }
 
   async createTask(taskDto: TaskDto) {
-    const task: Task = {
-      ...taskDto,
-      id: uuid(),
-      dueDate: new Date(taskDto.dueDate).getTime(),
-    };
+    // INITIAL WAY
 
-    const objectOfTaskEntinty = this.tasksRepository.create(task);
+    // const task: Task = {
+    //   ...taskDto,
+    //   id: uuid(),
+    //   dueDate: new Date(taskDto.dueDate).getTime(),
+    // };
 
-    const tasksSaved = await this.tasksRepository.save(objectOfTaskEntinty);
-    console.log(tasksSaved);
-    return task.id;
+    // const objectOfTaskEntinty = this.tasksRepository.create(task);
+
+    // const tasksSaved = await this.tasksRepository.save(objectOfTaskEntinty);
+    // console.log(tasksSaved);
+    // return task.id;
+
+    // WAY ONE QUERY
+    const taskId = uuid();
+    const dueDate = new Date(taskDto.dueDate).getTime();
+
+    const query = `
+    INSERT INTO tasks (id, name, description, dueDate, priority, status)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    `;
+
+    await this.tasksRepository.query(query, [
+      taskId,
+      taskDto.name,
+      taskDto.description,
+      dueDate,
+      taskDto.priority,
+      taskDto.status,
+    ]);
+
+    return taskId;
   }
 
   async remove(id: string) {
-    const response = await this.tasksRepository.delete(id);
+    // INITIAL WAY
+    // const response = await this.tasksRepository.delete(id);
+
+    const query = `
+      DELETE FROM tasks
+      WHERE id = $1;
+    `;
+
+    await this.tasksRepository.query(query, [id]);
   }
 
   async updateOne(id: string, updateTaskDto: UpdateTaskDto) {
@@ -132,3 +210,9 @@ export class TasksService {
     return task.id;
   }
 }
+
+// const deleteTask = async (id) => {
+//   const reponse = await fetch(`localhost:3000/tasks/${id}`, {
+//     method: 'DELETE'
+//   })
+// }

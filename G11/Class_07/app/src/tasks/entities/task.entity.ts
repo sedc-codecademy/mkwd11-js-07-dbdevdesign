@@ -15,6 +15,7 @@ export class TaskEntity implements Task {
 
   @Column({
     type: 'bigint',
+    name: 'duedate',
   })
   dueDate: number; //timestamp
 

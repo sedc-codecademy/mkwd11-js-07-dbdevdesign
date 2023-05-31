@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommentEntity } from './entities/comment.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CommentDto } from './dto/comment.dto';
 import { v4 as uuid } from 'uuid';
 import { TaskEntity } from 'src/tasks/entities/task.entity';
@@ -9,6 +9,8 @@ import { TaskEntity } from 'src/tasks/entities/task.entity';
 @Injectable()
 export class CommentsService {
   constructor(
+    private dataSource: DataSource,
+
     @InjectRepository(CommentEntity)
     private readonly commentRepository: Repository<CommentEntity>,
 
@@ -29,20 +31,24 @@ export class CommentsService {
 
   // CREATE COMMENT
   async createComment(commentDto: CommentDto, taskId: string): Promise<string> {
-    const task = await this.taskRepository.findOneBy({ id: taskId });
+    const commentId = uuid();
 
-    const commentEntityInstance = this.commentRepository.create({
-      id: uuid(),
-      ...commentDto,
-      createdAt: new Date(),
-      task: task, //TaskEntity
+    this.dataSource.manager.transaction(async (entityMenager) => {
+      const task = await this.taskRepository.findOneBy({ id: taskId });
+
+      const commentEntityInstance = this.commentRepository.create({
+        id: commentId,
+        ...commentDto,
+        createdAt: new Date(),
+        task: task, //TaskEntity
+      });
+
+      await entityMenager.save(commentEntityInstance);
+
+      throw new HttpException('Some dummy error', 400);
     });
 
-    const commentSaved = await this.commentRepository.save(
-      commentEntityInstance,
-    );
-
-    return commentSaved.id;
+    return commentId;
   }
   // REMOVE COMMENT
   async remove(id: string) {

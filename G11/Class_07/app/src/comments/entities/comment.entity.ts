@@ -1,5 +1,5 @@
 import { TaskEntity } from 'src/tasks/entities/task.entity';
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
 @Entity('comments')
 export class CommentEntity {
@@ -13,5 +13,6 @@ export class CommentEntity {
   createdAt: Date;
 
   @ManyToOne(() => TaskEntity, (task) => task.comments, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'taskid' })
   task: TaskEntity;
 }
