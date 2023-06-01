@@ -2,12 +2,15 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Artist } from "./artists.entity";
 import { Repository } from "typeorm";
+import { ArtistAvgRatingView } from "./artist-avg-rating-view.entity";
 
 @Injectable()
 export class ArtistsService {
   constructor(
     @InjectRepository(Artist)
-    private readonly artistsRepository: Repository<Artist>
+    private readonly artistsRepository: Repository<Artist>,
+    @InjectRepository(ArtistAvgRatingView)
+    private readonly artistAvgRatingViewRepository: Repository<ArtistAvgRatingView>
   ) {}
 
   // -- Retrieve the names of all artists along with a comma-separated list of their album names.
@@ -83,9 +86,13 @@ export class ArtistsService {
   //   return results.map(r => r.artist_name);
   // }
 
-  getArtists() {
-    return this.artistsRepository.createQueryBuilder("artist").getMany();
-  }
+  // getArtists() {
+  //   return this.artistsRepository.createQueryBuilder("artist").getMany();
+  // }
+
+  // getArtists() {
+  //   return this.artistAvgRatingViewRepository.find();
+  // }
 
   async getArtist(id: number) {
     return this.artistsRepository
@@ -130,5 +137,47 @@ export class ArtistsService {
       .execute();
 
     console.log(response);
+  }
+
+  // get TOP 3 artists by album rating
+
+  // getArtists() {
+  //   return this.artistsRepository
+  //     .createQueryBuilder("artist")
+  //     .leftJoinAndSelect("artist.albums", "album")
+  //     .groupBy("artist.artist_id")
+  //     .addGroupBy("album.album_id")
+  //     .orderBy("AVG(album.rating)", "DESC")
+  //     .limit(3)
+  //     .getMany();
+  // }
+
+  // Get all artists which have "a" or "e" in their name
+  // getArtists() {
+  //   return this.artistsRepository
+  //     .createQueryBuilder("artist")
+  //     .where("artist.artist_name ILIKE :pattern", { pattern: "%a%" })
+  //     .orWhere("artist.artist_name ILIKE :pattern", { pattern: "%e%" })
+  //     .getMany();
+  // }
+
+  // Get all artists that HAVE albums
+
+  // getArtists() {
+  //   return this.artistsRepository
+  //     .createQueryBuilder("artist")
+  //     .leftJoinAndSelect("artist.albums", "album")
+  //     .where("album.album_id IS NOT NULL")
+  //     .getMany();
+  // }
+
+  // Get artists that DON'T HAVE albums
+
+  getArtists() {
+    return this.artistsRepository
+      .createQueryBuilder("artist")
+      .leftJoinAndSelect("artist.albums", "album")
+      .where("album.album_id IS NULL")
+      .getMany();
   }
 }

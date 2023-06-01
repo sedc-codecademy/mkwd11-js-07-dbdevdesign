@@ -1,7 +1,15 @@
-import {Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn} from "typeorm";
+import {
+  Column,
+  Entity,
+  Index,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Song } from "../songs/songs.entity";
 
-@Entity('genres')
+@Entity("genres")
+@Index(["genre_name"])
 export class Genre {
   @PrimaryGeneratedColumn()
   genre_id: number;
