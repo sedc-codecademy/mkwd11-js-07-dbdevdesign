@@ -67,19 +67,68 @@ export class ArtistsService {
   //     .getRawMany();
   // }
 
-  async getArtists() {
-    const query = `
-        SELECT ar.artist_name
-        FROM artists ar
-        JOIN albums al ON ar.artist_id = al.artist_id
-        JOIN songs s ON s.album_id = al.album_id
-        WHERE al.rating > (SELECT AVG(rating) from albums)
-        GROUP BY ar.artist_name
-        HAVING MAX(s.duration) > '00:04:00'
-      `;
+  // async getArtists() {
+  //   const query = `
+  //       SELECT ar.artist_name
+  //       FROM artists ar
+  //       JOIN albums al ON ar.artist_id = al.artist_id
+  //       JOIN songs s ON s.album_id = al.album_id
+  //       WHERE al.rating > (SELECT AVG(rating) from albums)
+  //       GROUP BY ar.artist_name
+  //       HAVING MAX(s.duration) > '00:04:00'
+  //     `;
 
-    const results = await this.artistsRepository.query(query);
-    console.log(results);
-    return results.map(r => r.artist_name);
+  //   const results = await this.artistsRepository.query(query);
+  //   console.log(results);
+  //   return results.map(r => r.artist_name);
+  // }
+
+  getArtists() {
+    return this.artistsRepository.createQueryBuilder("artist").getMany();
+  }
+
+  async getArtist(id: number) {
+    return this.artistsRepository
+      .createQueryBuilder("artist")
+      .where("artist.artist_id = :id", { id })
+      .getOne();
+  }
+
+  async createArtist(artist: Artist) {
+    const response = await this.artistsRepository
+      .createQueryBuilder()
+      .insert()
+      .into(Artist)
+      .values(artist)
+      .execute();
+
+    console.log(response);
+    return artist;
+  }
+
+  async updateArtist(id: number, artist: Artist) {
+    console.log(artist, id);
+    const response = await this.artistsRepository
+      .createQueryBuilder("artist")
+      .update(Artist)
+      .set(artist)
+      .where("artist_id = :id", { id })
+      .returning("*")
+      .execute();
+
+    console.log(response);
+
+    return artist;
+  }
+
+  async removeArtist(id: number) {
+    const response = await this.artistsRepository
+      .createQueryBuilder()
+      .delete()
+      .from(Artist)
+      .where("artist_id = :id", { id })
+      .execute();
+
+    console.log(response);
   }
 }
